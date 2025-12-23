@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Undangan Ulang Tahun 🎉</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(180deg, #fbc2eb, #a6c1ee);
+}
+.container {
+  max-width: 420px;
+  margin: auto;
+  background: white;
+  min-height: 100vh;
+  padding: 20px;
+  text-align: center;
+}
+h1 { color: #ff4b5c; }
+.card {
+  background: #fff5f5;
+  padding: 20px;
+  border-radius: 15px;
+  margin: 25px 0;
+  box-shadow: 0 5px 15px rgba(0,0,0,.1);
+}
+.gallery img {
+  width: 100%;
+  border-radius: 15px;
+  display: none;
+}
+.gallery img.active {
+  display: block;
+}
+button {
+  background: #ff4b5c;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 13px;
+  margin: 5px;
+}
+button.secondary {
+  background: #555;
+}
+.footer {
+  font-size: 12px;
+  color: #888;
+  margin-top: 20px;
+}
+input[type=file] {
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🎉 Selamat Ulang Tahun 🎉</h1>
+
+<div class="card">
+  <h2 id="nama"></h2>
+  <p id="umur"></p>
+  <p id="joke"></p>
+  <button onclick="gantiJoke()">Ganti Ucapan 😆</button>
+</div>
+
+<!-- GALERI -->
+<div class="card">
+  <h3>📸 Galeri Kenangan</h3>
+
+  <div class="gallery">
+    <img id="galleryImage">
+  </div>
+
+  <div>
+    <button onclick="prev()">⬅</button>
+    <button onclick="next()">➡</button>
+  </div>
+
+  <div>
+    <button onclick="downloadImage()">⬇ Download</button>
+    <button class="secondary" onclick="deleteImage()">🗑 Delete</button>
+  </div>
+
+  <input type="file" accept="image/*" onchange="uploadImage(event)">
+</div>
+
+<!-- MUSIK -->
+<div class="card">
+  <h3>🎵 Musik</h3>
+  <button onclick="toggleMusic()">Play / Pause</button>
+</div>
+
+<div class="footer">
+  Galeri ini akan tersimpan otomatis ✨
+</div>
+
+</div>
+
+<audio id="music" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+</audio>
+
+<script>
+// ================= DATA =================
+const nama = "Vita Nuryani";
+const umur = "3..";
+
+const jokes = [
+  "Resmi nambah umur, semoga saldo ikut naik.",
+  "Bukan tua, cuma upgrade versi.",
+  "Yang bertambah bukan umur, tapi pengalaman hidup.",
+  "Semoga makin dewasa, bukan makin sensitif.",
+  "Jangan bosen jadi orang baik teh pit!",
+  "terimakasih selalu menampung keluh kesah kita berdua 🥹",
+  "Selamat! Kamu bertahan sampai sejauh ini 😄"
+];
+
+document.getElementById("nama").innerText = nama;
+document.getElementById("umur").innerText = "Genap " + umur + " tahun 🎂";
+
+let jokeIndex = 0;
+
+function gantiJoke() {
+  document.getElementById("joke").innerText = jokes[jokeIndex];
+  jokeIndex++;
+
+  if (jokeIndex >= jokes.length) {
+    jokeIndex = 0; // kembali ke awal
+  }
+}
+gantiJoke();
+
+// ============== GALERI PERMANEN ==============
+const STORAGE_KEY = "birthday_gallery_images";
+let images = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+let index = 0;
+
+const galleryImage = document.getElementById("galleryImage");
+
+function saveGallery() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(images));
+}
+
+function showImage() {
+  if (images.length === 0) {
+    galleryImage.style.display = "none";
+    return;
+  }
+  galleryImage.style.display = "block";
+  galleryImage.src = images[index];
+}
+
+function next() {
+  if (images.length === 0) return;
+  index = (index + 1) % images.length;
+  showImage();
+}
+
+function prev() {
+  if (images.length === 0) return;
+  index = (index - 1 + images.length) % images.length;
+  showImage();
+}
+
+function uploadImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    images.push(e.target.result);
+    index = images.length - 1;
+    saveGallery();
+    showImage();
+  };
+  reader.readAsDataURL(file);
+}
+
+function deleteImage() {
+  if (images.length === 0) return;
+  if (!confirm("Yakin mau hapus foto ini?")) return;
+
+  images.splice(index, 1);
+  if (index >= images.length) index = images.length - 1;
+  saveGallery();
+  showImage();
+}
+
+function downloadImage() {
+  if (images.length === 0) return;
+  const link = document.createElement("a");
+  link.href = images[index];
+  link.download = "foto-kenangan.jpg";
+  link.click();
+}
+
+// Load galeri saat halaman dibuka
+showImage();
+
+// ============== MUSIK ==============
+const music = document.getElementById("music");
+function toggleMusic() {
+  music.paused ? music.play() : music.pause();
+}
+</script>
+
+</body>
+</html>
